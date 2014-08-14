@@ -1,0 +1,69 @@
+{
+    "appKeys": {
+        "cancelMessages": 4,
+        "description": 7,
+        "entertainmentStatus": 10,
+        "error": 16,
+        "getAttractionInfo": 8,
+        "getEntertainment": 9,
+        "getItinerary": 15,
+        "getSchedule": 11,
+        "getWaitTimes": 3,
+        "id": 5,
+        "index": 0,
+        "location": 6,
+        "name": 1,
+        "scheduleTime": 12,
+        "time": 14,
+        "type": 13,
+        "waitTime": 2
+    },
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "Logical Pixels",
+    "longName": "Disney World for Pebble",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/restaurant-26.png",
+                "name": "IMAGE_DINING_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/fantasy-26.png",
+                "name": "IMAGE_ENTERTAINMENT_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/menu-icon.png",
+                "menuIcon": true,
+                "name": "IMAGE_MICKEY_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/clock-26.png",
+                "name": "IMAGE_CLOCK_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/calendar-26.png",
+                "name": "IMAGE_CALENDAR_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/fp-icon.png",
+                "name": "IMAGE_FP_ICON",
+                "type": "png"
+            }
+        ]
+    },
+    "shortName": "Disney World",
+    "uuid": "2314b211-be6b-4784-8b08-664ca20806ff",
+    "versionCode": 1,
+    "versionLabel": "2.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
