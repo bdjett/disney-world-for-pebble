@@ -66,7 +66,8 @@ void in_received_handler(DictionaryIterator *iter, void *context) {
   Tuple *entertainment_status_tuple = dict_find(iter, ENTERTAINMENT_STATUS);
   Tuple *schedule_time_tuple = dict_find(iter, SCHEDULE_TIME);
   Tuple *type_tuple = dict_find(iter, TYPE);
-  Tuple *error_tuple = dict_find(iter, ERROR);
+  Tuple *error_title_tuple = dict_find(iter, ERROR_TITLE);
+  Tuple *error_desc_tuple = dict_find(iter, ERROR_DESC);
   if (wait_time_tuple) {
     // Got a wait time
     wait_times_in_received_handler(iter);
@@ -82,9 +83,9 @@ void in_received_handler(DictionaryIterator *iter, void *context) {
   } else if (type_tuple) {
     // Got an itinerary item
     itinerary_in_received_handler(iter);
-  } else if (error_tuple) {
+  } else if (error_title_tuple) {
     // Got an error
-    show_error(error_tuple->value->cstring);
+    show_error(error_title_tuple->value->cstring, error_desc_tuple->value->cstring);
   }
 }
 

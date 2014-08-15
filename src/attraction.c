@@ -37,6 +37,21 @@ static void hide_loading_icon(void) {
   layer_remove_from_parent(bitmap_layer_get_layer(loading_icon_layer));
 }
 
+// Cancel all queued incoming messages
+static void cancel_app_messages() {
+  Tuplet cancel_messages_tuple = TupletInteger(CANCEL_MESSAGES, 1);
+	DictionaryIterator *iter;
+	app_message_outbox_begin(&iter);
+
+	if (iter == NULL) {
+		return;
+	}
+
+	dict_write_tuplet(iter, &cancel_messages_tuple);
+	dict_write_end(iter);
+	app_message_outbox_send();
+}
+
 // Get the attraction information for a specific attraction ID
 static void get_attraction_info(char *id) {
   Tuplet get_attraction_info_tuple = TupletCString(GET_ATTRACTION_INFO, id);
@@ -110,6 +125,7 @@ static void destroy_ui(void) {
 
 // Window unload callback
 static void handle_window_unload(Window* window) {
+  cancel_app_messages();
   destroy_ui();
 }
 

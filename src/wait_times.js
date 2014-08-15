@@ -2,6 +2,7 @@
 // --------------
 // Get a public token for use in wait times
 var getPublicToken = function() {
+  console.log("Getting public token");
   var req = new XMLHttpRequest();
   var requestUrl = "https://authorization.go.com/token?assertion_type=public&client_id=WDPRO-MOBILE.MDX.WDW.IOS-PROD&client_secret=&grant_type=assertion";
   req.timeout = httpTimeout;
@@ -12,7 +13,6 @@ var getPublicToken = function() {
         if (req.responseText) {
           var response = JSON.parse(req.responseText);
           localStorage.publicToken = response.access_token;
-          console.log(req.responseText);
         }
       }
     }
@@ -30,6 +30,7 @@ var getPublicToken = function() {
 // ------------
 // Get wait times for given park id
 var getWaitTimes = function(park) {
+  console.log("Getting wait times");
   if (!localStorage.publicToken) {
     getPublicToken();
   }
@@ -44,31 +45,28 @@ var getWaitTimes = function(park) {
         if (req.responseText) {
           var response = JSON.parse(req.responseText);
           var entries = response.entries;
-          var attractions = [];
-          for (var i = 0; i < entries.length; i++) {
-            var entry = entries[i];
-            var attraction = {};
-            attraction.name = entry.name.substring(0,20);
-            attraction.id = entry.id;
-            if (entry.waitTime.postedWaitMinutes !== undefined) {
-              attraction.waitTime = entry.waitTime.postedWaitMinutes + " minutes";
-            } else {
-              attraction.waitTime = entry.waitTime.rollUpWaitTimeMessage.substring(0,30);
-            }
-            if (entry.type == "Attraction") {
-              attractions.push(attraction);
-            }
-          }
-          attractions.sort(function(a, b) {
+          entries.sort(function(a, b) {
             return (a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
           });
-          attractions.forEach(function(element, index, array) {
-            appMessageQueue.push({'message': {
-              'index': index,
-              'id': element.id,
-              'name': element.name,
-              'waitTime': element.waitTime
-            }});
+          entries.forEach(function(element, index, array) {
+            var i = 0;
+            if (element.type == "Attraction") {
+              var name = element.name.substring(0,20);
+              var id = element.id;
+              var waitTime;
+              if (element.waitTime.postedWaitMinutes !== undefined) {
+                waitTime = element.waitTime.postedWaitMinutes + " minutes";
+              } else {
+                waitTime = element.waitTime.rollUpWaitTimeMessage.substring(0,30);
+              }
+              appMessageQueue.push({'message': {
+                'index': i,
+                'id': id,
+                'name': name,
+                'waitTime': waitTime
+              }});
+              i++;
+            }
           });
           appMessageQueue.push({'message': {
             'name': "",
@@ -76,7 +74,7 @@ var getWaitTimes = function(park) {
           }});
           sendAppMessage();
         }
-      } else if (req.status == 401) {
+      } else {
         // Unauthorized, publicToken must be expired, request a new one and try again
         getPublicToken();
         getWaitTimes(park);
@@ -85,11 +83,11 @@ var getWaitTimes = function(park) {
   };
   req.ontimeout = function() {
     console.log("Timed out");
-    sendError("There was an error getting wait times");
+    sendError("Oops!", "There was an error getting current wait times.");
   };
   req.onerror = function() {
     console.log("Connection failed");
-    sendError("There was an error getting wait times");
+    sendError("Oops!", "There was an error getting current wait times.");
   };
   req.send(null);
 };
@@ -98,10 +96,10 @@ var getWaitTimes = function(park) {
 // -----------------
 // Given an attraction ID, returns information about it
 var getAttractionInfo = function(attractionId) {
+  console.log("Getting attraction info");
   if (!localStorage.publicToken) {
     getPublicToken();
   }
-  console.log(attractionId);
   var req = new XMLHttpRequest();
   var requestUrl = "https://api.wdpro.disney.go.com/global-pool-override-B/facility-service/attractions/" + attractionId;
   req.setRequestHeader("Authorization", "BEARER " + localStorage.publicToken);
@@ -117,17 +115,19 @@ var getAttractionInfo = function(attractionId) {
           if (response.descriptions !== undefined) {
             desc = response.descriptions.shortDescriptionMobile.text;
           }
-          if (response.links.ancestorLand !== undefined) {
-            land = response.links.ancestorLand.title;
+          if (response.links !== undefined) {
+            if (response.links.ancestorLand !== undefined) {
+              land = response.links.ancestorLand.title;
+            }
           }
           appMessageQueue.push({'message': {
-            'name': response.name,
-            'location': land,
-            'description': desc.substring(0,200)
+            'name': response.name.substring(0,75),
+            'location': land.substring(0,75),
+            'description': desc.substring(0,150)
           }});
           sendAppMessage();
         }
-      } else if (req.status == 401) {
+      } else {
         // Unauhtorized, public token must be expired, request new one and try again
         getPublicToken();
         getAttractionInfo(attractionId);
@@ -136,11 +136,11 @@ var getAttractionInfo = function(attractionId) {
   };
   req.ontimeout = function() {
     console.log("Timed out");
-    sendError("There was an error getting the attraction info");
+    sendError("Oops!", "There was an error getting the attraction info.");
   };
   req.onerror = function() {
     console.log("Connection failed");
-    sendError("There was an error getting the attraction info");
+    sendError("Oops!", "There was an error getting the attraction info.");
   };
   req.send(null);
 };
@@ -149,6 +149,7 @@ var getAttractionInfo = function(attractionId) {
 // ------------
 // Get entertainment for park id
 var getEntertainment = function(park) {
+  console.log("Getting entertainment");
   if (!localStorage.publicToken) {
     getPublicToken();
   }
@@ -163,31 +164,28 @@ var getEntertainment = function(park) {
         if (req.responseText) {
           var response = JSON.parse(req.responseText);
           var entries = response.entries;
-          var attractions = [];
-          for (var i = 0; i < entries.length; i++) {
-            var entry = entries[i];
-            var attraction = {};
-            attraction.name = entry.name.substring(0,20);
-            attraction.id = entry.id;
-            if (entry.waitTime.postedWaitMinutes !== undefined) {
-              attraction.waitTime = entry.waitTime.postedWaitMinutes + " minutes";
-            } else {
-              attraction.waitTime = entry.waitTime.rollUpWaitTimeMessage.substring(0,30);
-            }
-            if (entry.type == "Entertainment") {
-              attractions.push(attraction);
-            }
-          }
-          attractions.sort(function(a, b) {
+          entries.sort(function(a, b) {
             return (a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
           });
-          attractions.forEach(function(element, index, array) {
-            appMessageQueue.push({'message': {
-              'index': index,
-              'id': element.id,
-              'name': element.name,
-              'entertainmentStatus': element.waitTime
-            }});
+          entries.forEach(function(element, index, array) {
+            var i = 0;
+            if (element.type == "Entertainment") {
+              var name = element.name.substring(0,20);
+              var id = element.id;
+              var waitTime;
+              if (element.waitTime.postedWaitMinutes !== undefined) {
+                waitTime = element.waitTime.postedWaitMinutes + " minutes";
+              } else {
+                waitTime = element.waitTime.rollUpWaitTimeMessage.substring(0,30);
+              }
+              appMessageQueue.push({'message': {
+                'index': i,
+                'id': id,
+                'name': name,
+                'entertainmentStatus': waitTime
+              }});
+              i++;
+            }
           });
           appMessageQueue.push({'message': {
             'name': "",
@@ -195,7 +193,7 @@ var getEntertainment = function(park) {
           }});
           sendAppMessage();
         }
-      } else if (req.status == 401) {
+      } else {
         // Unauthorized, get new public token
         getPublicToken();
         getEntertainment(park);
@@ -204,11 +202,11 @@ var getEntertainment = function(park) {
   };
   req.ontimeout = function() {
     console.log("Timed out");
-    sendError("There was an error getting the entertainment attractions");
+    sendError("Oops!", "There was an error getting entertainment.");
   };
   req.onerror = function() {
     console.log("Connection failed");
-    sendError("There was an error getting the entertainment attractions");
+    sendError("Oops!", "There was an error getting entertainment.");
   };
   req.send(null);
 };
@@ -233,6 +231,7 @@ function tConvert (time) {
 // -----------------
 // Get the schedule for a given attraction ID
 var getSchedule = function(attractionId) {
+  console.log("Getting schedule");
   if (!localStorage.publicToken) {
     getPublicToken();
   }
@@ -280,7 +279,7 @@ var getSchedule = function(attractionId) {
           }});
           sendAppMessage();
         }
-      } else if (req.status == 401) {
+      } else {
         // Unauthorized, get new public token
         getPublicToken();
         getSchedule(attractionId);
@@ -289,11 +288,11 @@ var getSchedule = function(attractionId) {
   };
   req.ontimeout = function() {
     console.log("Timed out");
-    sendError("There was an error getting the attraction schedule");
+    sendError("Oops!", "There was an error getting the entertainment schedule.");
   };
   req.onerror = function() {
     console.log("Connection failed");
-    sendError("There was an error getting the attraction schedule");
+    sendError("Oops!", "There was an error getting the entertainment schedule.");
   };
   req.send(null);
 };

@@ -1,5 +1,7 @@
-#include "common.h"
+#include "error_window.h"
+#include <pebble.h>
 
+// BEGIN AUTO-GENERATED UI CODE; DO NOT MODIFY
 static Window *s_window;
 static GBitmap *s_res_image_mickey_icon;
 static GFont s_res_gothic_18_bold;
@@ -9,7 +11,6 @@ static TextLayer *error_title_text_layer;
 static TextLayer *error_description_text_layer;
 static InverterLayer *error_icon_inverter_layer;
 
-// Initialize all UI components
 static void initialise_ui(void) {
   s_window = window_create();
   window_set_background_color(s_window, GColorBlack);
@@ -24,9 +25,10 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)error_icon_bitmap_layer);
   
   // error_title_text_layer
-  error_title_text_layer = text_layer_create(GRect(5, 41, 134, 22));
+  error_title_text_layer = text_layer_create(GRect(5, 41, 134, 20));
   text_layer_set_background_color(error_title_text_layer, GColorClear);
   text_layer_set_text_color(error_title_text_layer, GColorWhite);
+  text_layer_set_text(error_title_text_layer, "Login Required");
   text_layer_set_text_alignment(error_title_text_layer, GTextAlignmentCenter);
   text_layer_set_font(error_title_text_layer, s_res_gothic_18_bold);
   layer_add_child(window_get_root_layer(s_window), (Layer *)error_title_text_layer);
@@ -35,6 +37,7 @@ static void initialise_ui(void) {
   error_description_text_layer = text_layer_create(GRect(5, 65, 134, 81));
   text_layer_set_background_color(error_description_text_layer, GColorClear);
   text_layer_set_text_color(error_description_text_layer, GColorWhite);
+  text_layer_set_text(error_description_text_layer, "Please open the Pebble app and login to My Disney Experience.");
   text_layer_set_text_alignment(error_description_text_layer, GTextAlignmentCenter);
   text_layer_set_font(error_description_text_layer, s_res_gothic_18);
   layer_add_child(window_get_root_layer(s_window), (Layer *)error_description_text_layer);
@@ -44,7 +47,6 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)error_icon_inverter_layer);
 }
 
-// Free all memory from UI components
 static void destroy_ui(void) {
   window_destroy(s_window);
   bitmap_layer_destroy(error_icon_bitmap_layer);
@@ -53,26 +55,20 @@ static void destroy_ui(void) {
   inverter_layer_destroy(error_icon_inverter_layer);
   gbitmap_destroy(s_res_image_mickey_icon);
 }
+// END AUTO-GENERATED UI CODE
 
-// Window unload callback
 static void handle_window_unload(Window* window) {
   destroy_ui();
 }
 
-// Show window
-void show_error(char *error_title, char *error_desc) {
-  window_stack_pop(false);
+void show_error_window(void) {
   initialise_ui();
-  text_layer_set_text(error_title_text_layer, error_title);
-  text_layer_set_text(error_description_text_layer, error_desc);
   window_set_window_handlers(s_window, (WindowHandlers) {
     .unload = handle_window_unload,
   });
   window_stack_push(s_window, true);
-  vibes_short_pulse();
 }
 
-// Hide window
-void hide_error(void) {
+void hide_error_window(void) {
   window_stack_remove(s_window, true);
 }

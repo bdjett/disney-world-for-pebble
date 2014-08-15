@@ -3,7 +3,8 @@
         "cancelMessages": 4,
         "description": 7,
         "entertainmentStatus": 10,
-        "error": 16,
+        "errorDesc": 17,
+        "errorTitle": 16,
         "getAttractionInfo": 8,
         "getEntertainment": 9,
         "getItinerary": 15,
@@ -22,7 +23,7 @@
         "configurable"
     ],
     "companyName": "Logical Pixels",
-    "longName": "Disney World for Pebble",
+    "longName": "My Disney Experience for Pebble",
     "projectType": "native",
     "resources": {
         "media": [
@@ -60,7 +61,7 @@
         ]
     },
     "shortName": "Disney World",
-    "uuid": "2314b211-be6b-4784-8b08-664ca20806ff",
+    "uuid": "f813669a-50c6-42c4-a55b-744c6f3ca5a6",
     "versionCode": 1,
     "versionLabel": "2.0",
     "watchapp": {

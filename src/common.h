@@ -61,7 +61,8 @@ enum {
   TYPE = 13,
   TIME = 14,
   GET_ITINERARY = 15,
-  ERROR = 16
+  ERROR_TITLE = 16,
+  ERROR_DESC = 17
 };
 
 // VECTOR FUNCTIONS

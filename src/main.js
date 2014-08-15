@@ -1,7 +1,7 @@
 var maxAppMessageBuffer = 100;
 var maxAppMessageTries = 3;
 var appMessageRetryTimeout = 3000;
-var appMessageTimeout = 100;
+var appMessageTimeout = 0;
 var httpTimeout = 12000;
 var appMessageQueue = [];
 
@@ -40,9 +40,10 @@ var sendAppMessage = function() {
 // sendError
 // ---------
 // displays error message on Pebble
-var sendError = function(error) {
+var sendError = function(errorTitle, errorDesc) {
     appMessageQueue.push({'message': {
-                            'error': error.toString(),
+                            'errorTitle': errorTitle.toString(),
+                            'errorDesc': errorDesc.toString()
     }});
     sendAppMessage();
 };
@@ -54,7 +55,6 @@ Pebble.addEventListener("ready", function(e) {
 
 // RECEIVED APP MESSAGE
 Pebble.addEventListener("appmessage", function(e) {
-  console.log("Got app message");
   if (e.payload.getWaitTimes) {
     // GET WAIT TIMES
     if (e.payload.getWaitTimes == "Magic Kingdom") {
@@ -94,14 +94,14 @@ Pebble.addEventListener("appmessage", function(e) {
       getItinerary();
     } else {
       // User is not logged in
-      sendError("Please login on the Pebble app");
+      sendError("Login Required", "Please open the Pebble app on your phone and login.");
     }
   }
 });
 
 // SHOW CONFIG WINDOW
 Pebble.addEventListener("showConfiguration", function(e) {
-    Pebble.openURL("http://logicalpixels.com/mde/settings.html");
+    Pebble.openURL("http://logicalpixels.com/mde/settings.html#version2");
 });
 
 // CLOSED CONFIG WINDOW
