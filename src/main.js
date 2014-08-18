@@ -53,11 +53,13 @@ var sendError = function(errorTitle, errorDesc) {
 // Get a public token for use in wait times
 var getPublicToken = function() {
   console.log("Getting public token");
+  localStorage.log.push('Getting public token');
   var req = new XMLHttpRequest();
   var requestUrl = "https://authorization.go.com/token?assertion_type=public&client_id=WDPRO-MOBILE.MDX.WDW.IOS-PROD&client_secret=&grant_type=assertion";
   req.open('POST', requestUrl, false);
   req.timeout = httpTimeout;
   req.onload = function(e) {
+    localStorage.log.push('Ready state: ' + req.readyState + ', Status: ' + req.status + ', Headers: ' + JSON.stringify(req.headers));
     if (req.readyState == 4) {
       if (req.status == 200) {
         if (req.responseText) {
@@ -69,10 +71,12 @@ var getPublicToken = function() {
   };
   req.ontimeout = function() {
     console.log("Timed out");
+    localStorage.log.push('Timed out');
     getPublicToken();
   };
   req.onerror = function() {
     console.log("Connection failed");
+    localStorage.log.push('Error');
   };
   req.send(null);
 };
@@ -82,6 +86,7 @@ var getPublicToken = function() {
 // Get wait times for given park id
 var getWaitTimes = function(park) {
   console.log("Getting wait times");
+  localStorage.log.push('Getting wait times');
   if (requesting) {
     return;
   }
@@ -95,6 +100,7 @@ var getWaitTimes = function(park) {
   req.setRequestHeader("Authorization", "BEARER " + localStorage.publicToken);
   req.timeout = httpTimeout;
   req.onload = function(e) {
+    localStorage.log.push('Ready state: ' + req.readyState + ', Status: ' + req.status);
     console.log("Ready state: " + req.readyState + " Status: " + req.status);
     if (req.readyState == 4) {
       if (req.status == 200) {
@@ -141,11 +147,13 @@ var getWaitTimes = function(park) {
   };
   req.ontimeout = function() {
     console.log("Timed out");
+    localStorage.log.push('Timed out');
     sendError("Oops!", "There was an error getting current wait times.");
     requesting = false;
   };
   req.onerror = function() {
     console.log("Connection failed");
+    localStorage.log.push('Error');
     sendError("Oops!", "There was an error getting current wait times.");
     requesting = false;
   };
@@ -157,6 +165,7 @@ var getWaitTimes = function(park) {
 // Given an attraction ID, returns information about it
 var getAttractionInfo = function(attractionId) {
   console.log("Getting attraction info");
+  localStorage.log.push('Getting attraction info');
   if (requesting) {
     return;
   }
@@ -170,6 +179,7 @@ var getAttractionInfo = function(attractionId) {
   req.setRequestHeader("Authorization", "BEARER " + localStorage.publicToken);
   req.timeout = httpTimeout;
   req.onload = function(e) {
+    localStorage.log.push('Ready state: ' + req.readyState + ', Status: ' + req.status);
     if (req.readyState == 4) {
       if (req.status == 200) {
         if (req.responseText) {
@@ -200,11 +210,13 @@ var getAttractionInfo = function(attractionId) {
   };
   req.ontimeout = function() {
     console.log("Timed out");
+    localStorage.log.push('Timed out');
     sendError("Oops!", "There was an error getting the attraction info.");
     requesting = false;
   };
   req.onerror = function() {
     console.log("Connection failed");
+    localStorage.log.push('Error');
     sendError("Oops!", "There was an error getting the attraction info.");
     requesting = false;
   };
@@ -216,6 +228,7 @@ var getAttractionInfo = function(attractionId) {
 // Get entertainment for park id
 var getEntertainment = function(park) {
   console.log("Getting entertainment");
+  localStorage.log.push('Getting entertainment');
   if (requesting) {
     return;
   }
@@ -229,6 +242,7 @@ var getEntertainment = function(park) {
   req.setRequestHeader("Authorization", "BEARER " + localStorage.publicToken);
   req.timeout = httpTimeout;
   req.onload = function(e) {
+    localStorage.log.push('Ready state: ' + req.readyState + ', Status: ' + req.status);
     if (req.readyState == 4) {
       if (req.status == 200) {
         if (req.responseText) {
@@ -274,11 +288,13 @@ var getEntertainment = function(park) {
   };
   req.ontimeout = function() {
     console.log("Timed out");
+    localStorage.log.push('Timed out');
     sendError("Oops!", "There was an error getting entertainment.");
     requesting = false;
   };
   req.onerror = function() {
     console.log("Connection failed");
+    localStorage.log.push('Error');
     sendError("Oops!", "There was an error getting entertainment.");
     requesting = false;
   };
@@ -306,6 +322,7 @@ function tConvert (time) {
 // Get the schedule for a given attraction ID
 var getSchedule = function(attractionId) {
   console.log("Getting schedule");
+  localStorage.log.push('Getting schedule');
   if (requesting) {
     return;
   }
@@ -329,6 +346,7 @@ var getSchedule = function(attractionId) {
   req.setRequestHeader("Authorization", "BEARER " + localStorage.publicToken);
   req.timeout = httpTimeout;
   req.onload = function(e) {
+    localStorage.log.push('Ready state: ' + req.readyState + ', Status: ' + req.status);
     if (req.readyState == 4) {
       if (req.status == 200) {
         if (req.responseText) {
@@ -368,11 +386,13 @@ var getSchedule = function(attractionId) {
   };
   req.ontimeout = function() {
     console.log("Timed out");
+    localStorage.log.push('Timed out');
     sendError("Oops!", "There was an error getting the entertainment schedule.");
     requesting = false;
   };
   req.onerror = function() {
     console.log("Connection failed");
+    localStorage.log.push('Error');
     sendError("Oops!", "There was an error getting the entertainment schedule.");
     requesting = false;
   };
@@ -383,11 +403,13 @@ var getSchedule = function(attractionId) {
 // --------------
 // Get a private token for itinerary access
 var getPrivateToken = function() {
+  localStorage.log.push('Getting private token');
   var req = new XMLHttpRequest();
   var requestUrl = "https://authorization.go.com/token?client_id=WDPRO-MOBILE.MDX.WDW.IOS-PROD&client_secret=&grant_type=password&password=" + encodeURIComponent(localStorage.password) + "&scope=RETURN_ALL_CLIENT_SCOPES&username=" + encodeURIComponent(localStorage.username);
   req.open('POST', requestUrl, false);
   req.timeout = httpTimeout;
   req.onload = function(e) {
+    localStorage.log.push('Ready state: ' + req.readyState + ', Status: ' + req.status);
     if (req.readyState == 4) {
       if (req.status == 200) {
         if (req.responseText) {
@@ -400,9 +422,11 @@ var getPrivateToken = function() {
   };
   req.ontimeout = function() {
     console.log("Timed out");
+    localStorage.log.push('Timed out');
     getPrivateToken();
   };
   req.onerror = function() {
+    localStorage.log.push('Error');
     console.log("Connection failed");
   };
   req.send(null);
@@ -412,6 +436,7 @@ var getPrivateToken = function() {
 // ------
 // Get a user's xid from their swid
 var getXID = function() {
+  localStorage.log.push('Getting XID');
   getPrivateToken();
   var req = new XMLHttpRequest();
   var requestUrl = "https://disneyparks.api.go.com/assembly/guest/id;swid=" + encodeURIComponent(localStorage.swid) + "/profile";
@@ -419,6 +444,7 @@ var getXID = function() {
   req.open('GET', requestUrl, false);
   req.timeout = httpTimeout;
   req.onload = function(e) {
+    localStorage.log.push('Ready state: ' + req.readyState + ', Status: ' + req.status);
     if (req.readyState == 4) {
       if (req.status == 200) {
         if (req.responseText) {
@@ -435,9 +461,11 @@ var getXID = function() {
   };
   req.ontimeout = function() {
     console.log("Timed out");
+    localStorage.log.push('Timed out');
   };
   req.onerror = function() {
     console.log("Connection failed");
+    localStorage.log.push('Error');
     getXID();
   };
   req.send(null);
@@ -447,6 +475,7 @@ var getXID = function() {
 // ------------
 // Get guests itinerary
 var getItinerary = function() {
+  localStorage.log.push('Getting itinerary');
   if (requesting) {
     return;
   }
@@ -472,6 +501,7 @@ var getItinerary = function() {
   req.setRequestHeader("Authorization", "BEARER " + localStorage.privateToken);
   req.timeout = httpTimeout;
   req.onload = function(e) {
+    localStorage.log.push('Ready state: ' + req.readyState + ', Status: ' + req.status);
     if (req.readyState == 4) {
       if (req.status == 200) {
         if (req.responseText) {
@@ -545,11 +575,13 @@ var getItinerary = function() {
   };
   req.ontimeout = function() {
     console.log("Timed out");
+    localStorage.log.push('Timed out');
     sendError("Oops!", "There was an error getting your itinerary.");
     requesting = false;
   };
   req.onerror = function() {
     console.log("Connection failed");
+    localStorage.log.push('Error');
     sendError("Oops!", "There was an error getting your itinerary.");
     requesting = false;
   };
@@ -560,12 +592,14 @@ var getItinerary = function() {
 Pebble.addEventListener("ready", function(e) {
   // JS app ready
   requesting = false;
+  localStorage.log = [];
   //versionCheck('f813669a-50c6-42c4-a55b-744c6f3ca5a6', '1.7');
 });
 
 // RECEIVED APP MESSAGE
 Pebble.addEventListener("appmessage", function(e) {
   console.log("Received message: " + JSON.stringify(e));
+  localStorage.log.push('Received message: ' + JSON.stringify(e));
   if (e.payload.getWaitTimes) {
     // GET WAIT TIMES
     if (e.payload.getWaitTimes == "Magic Kingdom") {
@@ -613,7 +647,7 @@ Pebble.addEventListener("appmessage", function(e) {
 
 // SHOW CONFIG WINDOW
 Pebble.addEventListener("showConfiguration", function(e) {
-    Pebble.openURL("http://logicalpixels.com/mde/settings.html#version2");
+    Pebble.openURL("http://logicalpixels.com/mde/settings.html#" + encodeURIComponent(JSON.stringify(localStorage.log)));
 });
 
 // CLOSED CONFIG WINDOW
