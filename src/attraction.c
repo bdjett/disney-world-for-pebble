@@ -39,7 +39,6 @@ static void hide_loading_icon(void) {
 
 // Cancel all queued incoming messages
 static void cancel_app_messages() {
-  Tuplet cancel_messages_tuple = TupletInteger(CANCEL_MESSAGES, 1);
 	DictionaryIterator *iter;
 	app_message_outbox_begin(&iter);
 
@@ -47,14 +46,12 @@ static void cancel_app_messages() {
 		return;
 	}
 
-	dict_write_tuplet(iter, &cancel_messages_tuple);
-	dict_write_end(iter);
-	app_message_outbox_send();
+  dict_write_int16(iter, CANCEL_MESSAGES, 1);
+  app_message_outbox_send();
 }
 
 // Get the attraction information for a specific attraction ID
 static void get_attraction_info(char *id) {
-  Tuplet get_attraction_info_tuple = TupletCString(GET_ATTRACTION_INFO, id);
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
   
@@ -62,8 +59,7 @@ static void get_attraction_info(char *id) {
     return;
   }
   
-  dict_write_tuplet(iter, &get_attraction_info_tuple);
-  dict_write_end(iter);
+  dict_write_cstring(iter, GET_ATTRACTION_INFO, id);
   app_message_outbox_send();
 }
 

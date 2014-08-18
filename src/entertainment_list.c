@@ -30,7 +30,6 @@ static void show_loading_icon(void) {
 
 // Hide loading screen
 static void hide_loading_icon(void) {
-  vibes_short_pulse();
   menu_layer_set_click_config_onto_window(s_menulayer_1, s_window);
   layer_remove_from_parent(text_layer_get_layer(text_layer));
   layer_remove_from_parent(bitmap_layer_get_layer(loading_icon_layer));
@@ -38,7 +37,6 @@ static void hide_loading_icon(void) {
 
 // Cancel all incoming app messages queued for delivery
 static void cancel_app_messages() {
-  Tuplet cancel_messages_tuple = TupletInteger(CANCEL_MESSAGES, 1);
 	DictionaryIterator *iter;
 	app_message_outbox_begin(&iter);
 
@@ -46,14 +44,12 @@ static void cancel_app_messages() {
 		return;
 	}
 
-	dict_write_tuplet(iter, &cancel_messages_tuple);
-	dict_write_end(iter);
-	app_message_outbox_send();
+  dict_write_int16(iter, CANCEL_MESSAGES, 1);
+  app_message_outbox_send();
 }
 
 // Get a list of entertainment attractions for the given park name
 static void get_entertainment(char *park) {
-  Tuplet get_entertainment_tuple = TupletCString(GET_ENTERTAINMENT, park);
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
   
@@ -61,13 +57,13 @@ static void get_entertainment(char *park) {
     return;
   }
   
-  dict_write_tuplet(iter, &get_entertainment_tuple);
-  dict_write_end(iter);
+  dict_write_cstring(iter, GET_ENTERTAINMENT, park);
   app_message_outbox_send();
 }
 
 // App message in received handler for entertainment
 void entertainment_list_in_received_handler(DictionaryIterator *iter) {
+  hide_loading_icon();
   Tuple *status_tuple = dict_find(iter, ENTERTAINMENT_STATUS);
   Tuple *name_tuple = dict_find(iter, NAME);
   Tuple *index_tuple = dict_find(iter, INDEX);
@@ -78,11 +74,13 @@ void entertainment_list_in_received_handler(DictionaryIterator *iter) {
     strncpy(wait_time->id, id_tuple->value->cstring, sizeof(wait_time->id));
     strncpy(wait_time->name, name_tuple->value->cstring, sizeof(wait_time->name));
     strncpy(wait_time->time, status_tuple->value->cstring, sizeof(wait_time->time));
-    vector_add(&wait_times, wait_time);
+    if (wait_times.data != NULL) {
+      vector_add(&wait_times, wait_time);
+      layer_mark_dirty(menu_layer_get_layer(s_menulayer_1));
+      menu_layer_reload_data(s_menulayer_1);
+    }
   } else {
-    layer_mark_dirty(menu_layer_get_layer(s_menulayer_1));
-    menu_layer_reload_data(s_menulayer_1);
-    hide_loading_icon();
+    
   }
 }
 
@@ -136,6 +134,7 @@ static void initialise_ui(void) {
     .draw_header = menu_draw_header_callback,
     .select_click = menu_select_callback
   });
+  menu_layer_set_click_config_onto_window(s_menulayer_1, s_window);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_menulayer_1);
   
   show_loading_icon();

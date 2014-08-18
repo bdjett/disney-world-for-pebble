@@ -31,14 +31,13 @@ static void show_loading_icon(void) {
 
 // Hide loading screen
 static void hide_loading_icon(void) {
-  menu_layer_set_click_config_onto_window(s_menulayer_1, s_window);
+  
   layer_remove_from_parent(text_layer_get_layer(text_layer));
   layer_remove_from_parent(bitmap_layer_get_layer(loading_icon_layer));
 }
 
 // Cancel all queued incoming messages
 static void cancel_app_messages() {
-  Tuplet cancel_messages_tuple = TupletInteger(CANCEL_MESSAGES, 1);
 	DictionaryIterator *iter;
 	app_message_outbox_begin(&iter);
 
@@ -46,9 +45,8 @@ static void cancel_app_messages() {
 		return;
 	}
 
-	dict_write_tuplet(iter, &cancel_messages_tuple);
-	dict_write_end(iter);
-	app_message_outbox_send();
+  dict_write_int16(iter, CANCEL_MESSAGES, 1);
+  app_message_outbox_send();
 }
 
 // Ask JS to get schedule for given attraction ID
@@ -61,13 +59,13 @@ static void get_schedule(char *id) {
     return;
   }
   
-  dict_write_tuplet(iter, &get_schedule_tuple);
-  dict_write_end(iter);
+  dict_write_cstring(iter, GET_SCHEDULE, id);
   app_message_outbox_send();
 }
 
 // App message in recieved handler for schedule
 void schedule_in_received_handler(DictionaryIterator *iter) {
+  hide_loading_icon();
   Tuple *schedule_time_tuple = dict_find(iter, SCHEDULE_TIME);
   Tuple *index_tuple = dict_find(iter, INDEX);
   Tuple *name_tuple = dict_find(iter, NAME);
@@ -76,11 +74,13 @@ void schedule_in_received_handler(DictionaryIterator *iter) {
     EntertainmentTime *time = (EntertainmentTime *)malloc(sizeof(EntertainmentTime));
     strncpy(time->time, schedule_time_tuple->value->cstring, sizeof(time->time));
     time->index = index_tuple->value->int16;
-    vector_add(&times, time);
+    if (times.data != NULL) {
+      vector_add(&times, time);
+      layer_mark_dirty(menu_layer_get_layer(s_menulayer_1));
+      menu_layer_reload_data(s_menulayer_1);
+    }
   } else {
-    layer_mark_dirty(menu_layer_get_layer(s_menulayer_1));
-    menu_layer_reload_data(s_menulayer_1);
-    hide_loading_icon();
+    
   }
 }
 
@@ -140,6 +140,7 @@ static void initialise_ui(void) {
     .draw_header = menu_draw_header_callback,
     .select_click = menu_select_callback
   });
+  menu_layer_set_click_config_onto_window(s_menulayer_1, s_window);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_menulayer_1);
   
   show_loading_icon();

@@ -13,6 +13,7 @@
 #include "schedule_times.h"
 #include "itinerary_list.h"
 #include "error.h"
+#include "about.h"
 #include "vector.h"
   
 // TYPEDEFS
