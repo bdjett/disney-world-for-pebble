@@ -497,7 +497,7 @@ var getItinerary = function() {
               var hours = (startDate.getHours() < 10) ? "0" + startDate.getHours() : startDate.getHours();
               var mins = (startDate.getMinutes() < 10) ? "0" + startDate.getMinutes() : startDate.getMinutes();
               diningReservation.time = tConvert(hours + ":" + mins + ":00");
-              diningReservation.name = entry.eventDining.wdproEnterpriseProduct.name;
+              diningReservation.name = entry.eventDining ? entry.eventDining.wdproEnterpriseProduct.name : entry.showDining.wdproEnterpriseProduct.name;
               diningReservation.type = "dining";
               if (today.getFullYear() == startDate.getFullYear() && today.getMonth() == startDate.getMonth() && today.getDate() == startDate.getDate()) {
                 console.log(diningReservation.name);
