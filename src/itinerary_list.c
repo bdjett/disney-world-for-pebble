@@ -31,7 +31,7 @@ static void show_loading_icon(void) {
 
 // Hide loading screen
 static void hide_loading_icon(void) {
-  
+
   layer_remove_from_parent(text_layer_get_layer(text_layer));
   layer_remove_from_parent(bitmap_layer_get_layer(loading_icon_layer));
 }
@@ -53,11 +53,11 @@ static void cancel_app_messages() {
 static void get_itinerary() {
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
-  
+
   if (iter == NULL) {
     return;
   }
-  
+
   dict_write_int16(iter, GET_ITINERARY, 1);
   app_message_outbox_send();
 }
@@ -81,7 +81,7 @@ void itinerary_in_received_handler(DictionaryIterator *iter) {
       menu_layer_reload_data(s_menulayer_1);
     }
   } else {
-    
+
   }
 }
 
@@ -111,7 +111,7 @@ static void menu_draw_row_callback(GContext *ctx, const Layer *cell_layer, MenuI
   } else {
     menu_cell_basic_draw(ctx, cell_layer, ((ItineraryItem *)itinerary.data[cell_index->row])->name, ((ItineraryItem *)itinerary.data[cell_index->row])->time, NULL);
   }
-  
+
 }
 
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
@@ -128,12 +128,11 @@ static void clean_list(void) {
 // Initialize all UI components
 static void initialise_ui(void) {
   s_window = window_create();
-  window_set_fullscreen(s_window, false);
-  
+
   vector_init(&itinerary);
   fp_icon = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_FP_ICON);
   dining_icon = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_DINING_ICON);
-  
+
   // menu_layer
   s_menulayer_1 = menu_layer_create(GRect(0, 0, 144, 152));
   menu_layer_set_callbacks(s_menulayer_1, NULL, (MenuLayerCallbacks) {
@@ -146,9 +145,9 @@ static void initialise_ui(void) {
   });
   menu_layer_set_click_config_onto_window(s_menulayer_1, s_window);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_menulayer_1);
-  
+
   show_loading_icon();
-  
+
   get_itinerary();
 }
 
