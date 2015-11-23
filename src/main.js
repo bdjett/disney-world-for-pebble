@@ -520,8 +520,8 @@ var getItinerary = function() {
 
               // Timeline
               var pin = {
-                "id": "wdw-" + entry.id,
-                "time": new Date(new Date(startDate).setDate(startDate.getDate() - 7)),
+                "id": "wdw-d" + entry.id,
+                "time": new Date(new Date(startDate).setDate(startDate.getDate())),
                 "layout": {
                   "type": "genericPin",
                   "title": diningReservation.name,
