@@ -66,10 +66,9 @@
         ]
     },
     "shortName": "Disney World",
-    "uuid": "F393C239-DD37-4519-9F68-C2D882AC5A75",
+    "uuid": "f813669a-50c6-42c4-a55b-744c6f3ca5a6",
     "versionCode": 1,
-    "versionLabel": "3.0",
-    "sdkVersion": "3",
+    "versionLabel": "2.1",
     "watchapp": {
         "watchface": false
     }

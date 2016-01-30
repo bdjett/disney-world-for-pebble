@@ -31,7 +31,7 @@ static void show_loading_icon(void) {
 
 // Hide loading screen
 static void hide_loading_icon(void) {
-
+  
   layer_remove_from_parent(text_layer_get_layer(text_layer));
   layer_remove_from_parent(bitmap_layer_get_layer(loading_icon_layer));
 }
@@ -51,13 +51,14 @@ static void cancel_app_messages() {
 
 // Ask JS to get schedule for given attraction ID
 static void get_schedule(char *id) {
+  Tuplet get_schedule_tuple = TupletCString(GET_SCHEDULE, id);
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
-
+  
   if (iter == NULL) {
     return;
   }
-
+  
   dict_write_cstring(iter, GET_SCHEDULE, id);
   app_message_outbox_send();
 }
@@ -79,7 +80,7 @@ void schedule_in_received_handler(DictionaryIterator *iter) {
       menu_layer_reload_data(s_menulayer_1);
     }
   } else {
-
+    
   }
 }
 
@@ -124,10 +125,11 @@ static void clean_list(void) {
 // Initialize all UI components
 static void initialise_ui(void) {
   s_window = window_create();
-
+  window_set_fullscreen(s_window, false);
+  
   vector_init(&times);
   entertainment_name = "";
-
+  
   s_menulayer_1 = menu_layer_create(GRect(0, 0, 144, 152));
   menu_layer_set_callbacks(s_menulayer_1, NULL, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
@@ -140,9 +142,9 @@ static void initialise_ui(void) {
   });
   menu_layer_set_click_config_onto_window(s_menulayer_1, s_window);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_menulayer_1);
-
+  
   show_loading_icon();
-
+  
   get_schedule(entertainment_id);
 }
 

@@ -51,11 +51,11 @@ static void cancel_app_messages() {
 static void get_wait_times(char *park) {
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
-
+  
   if (iter == NULL) {
     return;
   }
-
+  
   dict_write_cstring(iter, GET_WAIT_TIMES, park);
   app_message_outbox_send();
 }
@@ -80,7 +80,7 @@ void wait_times_in_received_handler(DictionaryIterator *iter) {
     }
   } else {
     // Got the last wait time, hide loading screen and reload menu layer
-
+    
     //hide_loading_icon();
   }
 }
@@ -121,9 +121,10 @@ static void clean_list(void) {
 // Initialize all UI components
 static void initialise_ui(void) {
   s_window = window_create();
-
+  window_set_fullscreen(s_window, false);
+  
   vector_init(&wait_times);
-
+  
   s_menulayer_1 = menu_layer_create(GRect(0, 0, 144, 152));
   menu_layer_set_callbacks(s_menulayer_1, NULL, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
@@ -135,9 +136,9 @@ static void initialise_ui(void) {
   });
   menu_layer_set_click_config_onto_window(s_menulayer_1, s_window);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_menulayer_1);
-
+  
   show_loading_icon();
-
+  
   get_wait_times(park_name);
 }
 
