@@ -54,11 +54,11 @@ static void cancel_app_messages() {
 static void get_attraction_info(char *id) {
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
-  
+
   if (iter == NULL) {
     return;
   }
-  
+
   dict_write_cstring(iter, GET_ATTRACTION_INFO, id);
   app_message_outbox_send();
 }
@@ -79,33 +79,32 @@ void attraction_info_in_received_handler(DictionaryIterator *iter) {
 // Initialize all UI components
 static void initialise_ui(void) {
   s_window = window_create();
-  window_set_fullscreen(s_window, 0);
-  
+
   // fonts
   s_res_gothic_24_bold = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
   s_res_gothic_18_bold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
   s_res_gothic_14 = fonts_get_system_font(FONT_KEY_GOTHIC_14);
-  
+
   // name_text_layer
   name_text_layer = text_layer_create(GRect(5, 0, 137, 53));
   text_layer_set_font(name_text_layer, s_res_gothic_24_bold);
   text_layer_set_overflow_mode(name_text_layer, GTextOverflowModeTrailingEllipsis);
   layer_add_child(window_get_root_layer(s_window), (Layer *)name_text_layer);
-  
+
   // location_text_layer
   location_text_layer = text_layer_create(GRect(5, 53, 134, 20));
   text_layer_set_font(location_text_layer, s_res_gothic_18_bold);
   text_layer_set_overflow_mode(location_text_layer, GTextOverflowModeTrailingEllipsis);
   layer_add_child(window_get_root_layer(s_window), (Layer *)location_text_layer);
-  
+
   // description_text_layer
   description_text_layer = text_layer_create(GRect(5, 75, 134, 75));
   text_layer_set_font(description_text_layer, s_res_gothic_14);
   text_layer_set_overflow_mode(description_text_layer, GTextOverflowModeTrailingEllipsis);
   layer_add_child(window_get_root_layer(s_window), (Layer *)description_text_layer);
-  
+
   get_attraction_info(attraction_id);
-  
+
   show_loading_icon();
 }
 
@@ -128,7 +127,7 @@ static void handle_window_unload(Window* window) {
 // Push window on to stack
 void show_attraction_info(char *id) {
   attraction_id = id;
-  
+
   initialise_ui();
   window_set_window_handlers(s_window, (WindowHandlers) {
     .unload = handle_window_unload,

@@ -530,6 +530,14 @@ var getItinerary = function() {
         if (req.responseText) {
           var response = JSON.parse(req.responseText);
           var itineraryCount = 0;
+
+          var existingPins = localStorage.getItem("wdw-pins");
+          console.log(existingPins);
+          if (!existingPins) {
+            localStorage.setItem("wdw-pins", JSON.stringify(new Array()));
+          }
+
+          var encounteredIDs = new Array();
           for (var i = 0; i < response.entries.length; i++) {
             var index = 0;
             var entry = response.entries[i];
@@ -544,15 +552,40 @@ var getItinerary = function() {
               diningReservation.name = entry.eventDining ? entry.eventDining.wdproEnterpriseProduct.name : entry.showDining.wdproEnterpriseProduct.name;
               diningReservation.type = "dining";
               if (today.getFullYear() == startDate.getFullYear() && today.getMonth() == startDate.getMonth() && today.getDate() == startDate.getDate()) {
-                console.log(diningReservation.name);
-                appMessageQueue.push({'message': {
-                  'index': index,
-                  'name': diningReservation.name.substring(0,50),
-                  'type': diningReservation.type.substring(0,25),
-                  'time': diningReservation.time.substring(0,50)
+                appMessageQueue.push({"message": {
+                  "index": index,
+                  "name": diningReservation.name.substring(0,50),
+                  "type": diningReservation.type.substring(0,25),
+                  "time": diningReservation.time.substring(0,50)
                 }});
                 index++;
                 itineraryCount++;
+              }
+
+              // Timeline
+              var pin = {
+                "id": "wdw-d" + entry.id,
+                "time": new Date(new Date(startDate).setDate(startDate.getDate())),
+                "layout": {
+                  "type": "genericPin",
+                  "title": diningReservation.name,
+                  "tinyIcon": "system://images/DINNER_RESERVATION",
+                },
+              };
+
+              encounteredIDs.push(pin.id);
+
+              var pinArray = JSON.parse(localStorage.getItem("wdw-pins"));
+              if (pinArray.indexOf(pin.id) < 0) {
+                pinArray.push(pin.id);
+                localStorage.setItem("wdw-pins", JSON.stringify(pinArray));
+                console.log("Inserting pin: " + JSON.stringify(pin));
+                // TODO: handle errors (pin too far in future, in the past, etc.)
+                insertUserPin(pin, function(responseText) {
+                  console.log("Insert result: " + responseText);
+                });
+              } else {
+                console.log(pin.id + " already exists as a pin.");
               }
             } else if (entry.type == "xpass") {
               var xpassReservation = {};
@@ -578,6 +611,24 @@ var getItinerary = function() {
               }
             }
           }
+
+          JSON.parse(localStorage.getItem("wdw-pins")).filter(function(i) {
+            return encounteredIDs.indexOf(i) < 0;
+          }).forEach(function(id) {
+            deleteUserPin(id, function(responseText) {
+              console.log("Delete result: " + responseText);
+              if (responseText.trim() === "OK") {
+                var oldList = JSON.parse(localStorage.getItem("wdw-pins"));
+                var index = oldList.indexOf(id);
+                if (index > -1) {
+                  console.log("Removing " + id + " from wdw-pins.")
+                  oldList.splice(index, 1);
+                  localStorage.setItem("wdw-pins", JSON.stringify(oldList));
+                }
+              }
+            });
+          });
+
           if (itineraryCount === 0) {
             // No plans for the day
             sendError("No Plans", "It looks like you have nothing scheduled for today.");
@@ -687,3 +738,88 @@ Pebble.addEventListener("webviewclosed", function(e) {
       // No login info
     }
 });
+
+/******************************* timeline lib *********************************/
+
+// The timeline public URL root
+var API_URL_ROOT = 'https://timeline-api.getpebble.com/';
+
+/**
+ * Send a request to the Pebble public web timeline API.
+ * @param pin The JSON pin to insert. Must contain 'id' field.
+ * @param type The type of request, either PUT or DELETE.
+ * @param topics Array of topics if a shared pin, 'null' otherwise.
+ * @param apiKey Timeline API key for this app, available from dev-portal.getpebble.com
+ * @param callback The callback to receive the responseText after the request has completed.
+ */
+function timelineRequest(pin, type, topics, apiKey, callback) {
+  // User or shared?
+  var url = API_URL_ROOT + 'v1/' + ((topics != null) ? 'shared/' : 'user/') + 'pins/' + pin.id;
+
+  // Create XHR
+  var xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    console.log('timeline: response received: ' + this.responseText);
+    callback(this.responseText);
+  };
+  xhr.open(type, url);
+
+  // Set headers
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  if(topics != null) {
+    xhr.setRequestHeader('X-Pin-Topics', '' + topics.join(','));
+    xhr.setRequestHeader('X-API-Key', '' + apiKey);
+  }
+
+  // Get token
+  Pebble.getTimelineToken(function(token) {
+    // Add headers
+    xhr.setRequestHeader('X-User-Token', '' + token);
+
+    // Send
+    xhr.send(JSON.stringify(pin));
+    console.log('timeline: request sent.');
+  }, function(error) { console.log('timeline: error getting timeline token: ' + error); });
+}
+
+/**
+ * Insert a pin into the timeline for this user.
+ * @param pin The JSON pin to insert.
+ * @param callback The callback to receive the responseText after the request has completed.
+ */
+function insertUserPin(pin, callback) {
+  timelineRequest(pin, 'PUT', null, null, callback);
+}
+
+/**
+ * Delete a pin from the timeline for this user.
+ * @param pin The JSON pin to delete.
+ * @param callback The callback to receive the responseText after the request has completed.
+ */
+function deleteUserPin(pin, callback) {
+  timelineRequest(pin, 'DELETE', null, null, callback);
+}
+
+/**
+ * Insert a pin into the timeline for these topics.
+ * @param pin The JSON pin to insert.
+ * @param topics Array of topics to insert pin to.
+ * @param apiKey Timeline API key for this app, available from dev-portal.getpebble.com
+ * @param callback The callback to receive the responseText after the request has completed.
+ */
+function insertSharedPin(pin, topics, apiKey, callback) {
+  timelineRequest(pin, 'PUT', topics, apiKey, callback);
+}
+
+/**
+ * Delete a pin from the timeline for these topics.
+ * @param pin The JSON pin to delete.
+ * @param topics Array of topics to delete pin from.
+ * @param apiKey Timeline API key for this app, available from dev-portal.getpebble.com
+ * @param callback The callback to receive the responseText after the request has completed.
+ */
+function deleteSharedPin(pin, topics, apiKey, callback) {
+  timelineRequest(pin, 'DELETE', topics, apiKey, callback);
+}
+
+/****************************** end timeline lib ******************************/
