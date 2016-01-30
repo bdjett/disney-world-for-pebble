@@ -42,7 +42,7 @@ var sendAppMessage = function() {
                         sendAppMessage();
                     }, appMessageTimeout);
                 }, function(e) {
-                    console.log("Faled sending AppMessage for transactionId: " + e.data.transactionId + ". Error: " + e.data.error.message);
+                    console.log("Failed sending AppMessage for transactionId: " + e.data.transactionId + ". Error: " + e.data.error.message);
                     appMessageQueue[0].transactionId = e.data.transactionId;
                     appMessageQueue[0].numTries++;
                     setTimeout(function() {
@@ -51,7 +51,7 @@ var sendAppMessage = function() {
                 }
             );
         } else {
-            console.log("Faled sending AppMessage after multiple attemps for transactionId: " + currentAppMessage.transactionId + ". Error: None. Here's the message: " + JSON.stringify(currentAppMessage.message));
+            console.log("Failed sending AppMessage after multiple attemps for transactionId: " + currentAppMessage.transactionId + ". Error: None. Here's the message: " + JSON.stringify(currentAppMessage.message));
         }
     }
 };
