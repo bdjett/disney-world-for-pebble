@@ -58,7 +58,8 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
 // Initialize all UI components
 static void initialise_ui(void) {
   s_window = window_create();
-
+  window_set_fullscreen(s_window, false);
+  
   // menu_layer
   s_menulayer_1 = menu_layer_create(GRect(0, 0, 144, 152));
   menu_layer_set_callbacks(s_menulayer_1, NULL, (MenuLayerCallbacks) {

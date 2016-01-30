@@ -8,11 +8,12 @@
 */
 
 #include "common.h"
-
+  
 static int failed_attempts;
-
+static AppTimer *resend_timer;
+  
 void resend_timer_callback(void *data) {
-
+  
 }
 
 // APP MESSAGE CALLBACKS
@@ -51,13 +52,13 @@ void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, voi
   if ((reason == APP_MSG_SEND_TIMEOUT || reason == APP_MSG_BUSY || reason == APP_MSG_NOT_CONNECTED) && failed_attempts <= 5) {
     DictionaryIterator *iter;
     app_message_outbox_begin(&iter);
-
+    
     if (iter == NULL) {
       return;
     }
-
+    
     Tuple *tuple = dict_read_first(failed);
-
+    
     while (tuple) {
       switch (tuple->type) {
         case TUPLE_CSTRING:
@@ -71,7 +72,7 @@ void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, voi
       }
       tuple = dict_read_next(failed);
     }
-
+    
     app_message_outbox_send();
   } else {
     show_error("Error:", translate_error(reason));
@@ -118,15 +119,15 @@ void in_dropped_handler(AppMessageResult reason, void *context) {
 
 static void init(void) {
   app_comm_set_sniff_interval(SNIFF_INTERVAL_REDUCED);
-
+  
   failed_attempts = 0;
-
+  
   app_message_register_inbox_received(in_received_handler);
   app_message_register_inbox_dropped(in_dropped_handler);
   app_message_register_outbox_sent(out_sent_handler);
   app_message_register_outbox_failed(out_failed_handler);
   app_message_open(300, 200);
-
+  
   show_main_menu();
 }
 
