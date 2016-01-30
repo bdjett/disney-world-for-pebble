@@ -129,8 +129,8 @@ var getWaitTimes = function(park) {
           entries.sort(function(a, b) {
             return (a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
           });
+          var i = 0;
           entries.forEach(function(element, index, array) {
-            var i = 0;
             if (element.type == "Attraction") {
               var name = element.name.substring(0,20);
               var id = element.id;
@@ -272,8 +272,8 @@ var getEntertainment = function(park) {
           entries.sort(function(a, b) {
             return (a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
           });
+          var i = 0;
           entries.forEach(function(element, index, array) {
-            var i = 0;
             if (element.type == "Entertainment") {
               var name = element.name.substring(0,20);
               var id = element.id;
