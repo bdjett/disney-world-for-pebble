@@ -42,7 +42,7 @@ var sendAppMessage = function() {
                         sendAppMessage();
                     }, appMessageTimeout);
                 }, function(e) {
-                    console.log("Faled sending AppMessage for transactionId: " + e.data.transactionId + ". Error: " + e.data.error.message);
+                    console.log("Failed sending AppMessage for transactionId: " + e.data.transactionId + ". Error: " + e.data.error.message);
                     appMessageQueue[0].transactionId = e.data.transactionId;
                     appMessageQueue[0].numTries++;
                     setTimeout(function() {
@@ -51,7 +51,7 @@ var sendAppMessage = function() {
                 }
             );
         } else {
-            console.log("Faled sending AppMessage after multiple attemps for transactionId: " + currentAppMessage.transactionId + ". Error: None. Here's the message: " + JSON.stringify(currentAppMessage.message));
+            console.log("Failed sending AppMessage after multiple attemps for transactionId: " + currentAppMessage.transactionId + ". Error: None. Here's the message: " + JSON.stringify(currentAppMessage.message));
         }
     }
 };
@@ -129,16 +129,18 @@ var getWaitTimes = function(park) {
           entries.sort(function(a, b) {
             return (a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
           });
+          var i = 0;
           entries.forEach(function(element, index, array) {
-            var i = 0;
             if (element.type == "Attraction") {
               var name = element.name.substring(0,20);
               var id = element.id;
               var waitTime;
               if (element.waitTime.postedWaitMinutes !== undefined) {
                 waitTime = element.waitTime.postedWaitMinutes + " minutes";
-              } else {
+              } else if (element.waitTime.rollUpWaitTimeMessage !== undefined){
                 waitTime = element.waitTime.rollUpWaitTimeMessage.substring(0,30);
+              } else if (element.waitTime.status == "Extra Magic Hours"){
+                waitTime = element.waitTime.status.substring(0,30);
               }
               appMessageQueue.push({'message': {
                 'index': i,
@@ -270,16 +272,18 @@ var getEntertainment = function(park) {
           entries.sort(function(a, b) {
             return (a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
           });
+          var i = 0;
           entries.forEach(function(element, index, array) {
-            var i = 0;
             if (element.type == "Entertainment") {
               var name = element.name.substring(0,20);
               var id = element.id;
               var waitTime;
               if (element.waitTime.postedWaitMinutes !== undefined) {
                 waitTime = element.waitTime.postedWaitMinutes + " minutes";
-              } else {
+              } else if (element.waitTime.rollUpWaitTimeMessage !== undefined){
                 waitTime = element.waitTime.rollUpWaitTimeMessage.substring(0,30);
+              } else if (element.waitTime.status == "Extra Magic Hours"){
+                waitTime = element.waitTime.status.substring(0,30);
               }
               appMessageQueue.push({'message': {
                 'index': i,
