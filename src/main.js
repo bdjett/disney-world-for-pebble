@@ -278,8 +278,10 @@ var getEntertainment = function(park) {
               var waitTime;
               if (element.waitTime.postedWaitMinutes !== undefined) {
                 waitTime = element.waitTime.postedWaitMinutes + " minutes";
-              } else {
+              } else if (element.waitTime.rollUpWaitTimeMessage !== undefined){
                 waitTime = element.waitTime.rollUpWaitTimeMessage.substring(0,30);
+              } else if (element.status == "Extra Magic Hours"){
+                waitTime = element.status.substring(0,30);
               }
               appMessageQueue.push({'message': {
                 'index': i,
